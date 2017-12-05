@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Blogbook</h1>
+    <form method='post' action='/'>
+        <label>Title
+            <input type="text" name='title' id='new-blog-post'/>
+        </label>
+        <input type="submit" value='Add Task' />
+    </form>
+    <textarea name='body' form='new-blog-post' placeholder='Enter your post here...'></textarea>
+
+    <hr />
+
+    {% if posts|length == 0 %}
+    <p>No posts yet</p>
+    {% else %}
+
+            {% for post in posts %}
+            <h2>{{post.title}}</h2>
+            <div>{{post.body}}</div>
+            <hr>
+
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+{% endblock %}
