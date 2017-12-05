@@ -91,16 +91,24 @@ def login():
 
     return render_template('login.html')
 
+@app.route('/logout')
+def logout():
+    del session['email']
+    return redirect('/')
+
 
 @app.route('/', methods=['POST', 'GET'])
 def index():
 
     owner = User.query.filter_by(email=session['email']).first()
+    print('owner:', owner)
 
     if request.method == 'POST':
+        print('Inside index() if:')
         # user is trying to submit a blog post
         title = request.form['title']
         body = request.form['body']
+        print('before new post')
         new_post = Post(title, body, owner)
         db.session.add(new_post)
         #db.session.add(Post(request.form['title'], request.form['body'], owner)) #alt one-liner
