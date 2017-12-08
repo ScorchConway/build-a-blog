@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Blogbook</h1>
+    <form method='post' action='/newpost'>
+        <label>Title
+            <input type="text" name='title' id='new-blog-post' value='{{title}}'/>
+            <input type="text" name='body' placeholder='Enter your post here...'/>
+        </label>
+        <input type="submit" value='Add Task' />
+    </form>
+    <!-- TODO: figure out how to make a text input bigger -->
+    <!-- <textarea name='body' form='new-blog-post' placeholder='Enter your post here...'></textarea> -->
+
+{% endblock %}

@@ -65,7 +65,7 @@ def register():
             db.session.commit()
 
             session['email'] = email
-            return redirect('/')
+            return redirect('/blog')
         else:
             flash("email already registered")
             return render_template('register.html')
@@ -84,7 +84,7 @@ def login():
         if user and user.password == password:
             session['email'] = email # set the session dict at the key 'email' to the value of email
             flash('Logged in')
-            return redirect('/')
+            return redirect('/blog')
         else:
             flash("password is incorrect or user doesn't exist", "error")
             return redirect('/login')
@@ -94,30 +94,54 @@ def login():
 @app.route('/logout')
 def logout():
     del session['email']
-    return redirect('/')
+    return redirect('/blog')
 
+@app.route('/blog')
+def blog():
 
-@app.route('/', methods=['POST', 'GET'])
+    if request.args:  # if the request had any query parameters
+        # display a single post
+        id = request.args.get('id')
+        post = Post.query.filter_by(id=id).first()
+        # post = Post.query.filter_by(id=request.args.get('id') # one-liner
+        return render_template('post.html', post=post)
+
+    owner = User.query.filter_by(email=session['email']).first()
+    posts = Post.query.filter_by(owner=owner).all()
+
+    return render_template('posts.html', title="Blogbook", owner=owner, posts=posts)
+
+@app.route('/newpost', methods=['POST', 'GET'])
 def index():
 
     owner = User.query.filter_by(email=session['email']).first()
-    print('owner:', owner)
 
     if request.method == 'POST':
-        print('Inside index() if:')
         # user is trying to submit a blog post
+
         title = request.form['title']
         body = request.form['body']
-        print('before new post')
+
+        #validate data
+        if not title or title.isspace() or not body or body.isspace():
+            flash('Please add a Title and Body')
+            return render_template('newpost.html', title=title, body=body)
+
+
         new_post = Post(title, body, owner)
         db.session.add(new_post)
         #db.session.add(Post(request.form['title'], request.form['body'], owner)) #alt one-liner
         db.session.commit()
+        new_post_id = new_post.id
 
-    posts = Post.query.filter_by(owner=owner).all()
+
+        return redirect('/blog?id=' + str(new_post_id))
     
-    return render_template('index.html', title="Build a Blog", 
-        posts=posts)
+    return render_template('newpost.html')
+
+
+
+
 
 if __name__ == '__main__':
     app.run()
