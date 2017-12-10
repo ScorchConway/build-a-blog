@@ -67,12 +67,11 @@ def register():
             session['email'] = email
             return redirect('/blog')
         else:
-            flash("email already registered")
+            flash("email already registered", "error")
             return render_template('register.html')
     
     return render_template('register.html')
 
-    
 @app.route('/login', methods=['POST', 'GET'])
 def login():
 
@@ -112,7 +111,7 @@ def blog():
     return render_template('posts.html', title="Blogbook", owner=owner, posts=posts)
 
 @app.route('/newpost', methods=['POST', 'GET'])
-def index():
+def new_post():
 
     owner = User.query.filter_by(email=session['email']).first()
 
@@ -124,24 +123,20 @@ def index():
 
         #validate data
         if not title or title.isspace() or not body or body.isspace():
-            flash('Please add a Title and Body')
+            flash('Please add a Title and Body', 'error')
             return render_template('newpost.html', title=title, body=body)
-
 
         new_post = Post(title, body, owner)
         db.session.add(new_post)
         #db.session.add(Post(request.form['title'], request.form['body'], owner)) #alt one-liner
         db.session.commit()
+
+        # I'm surprised that this line works because the new_post variable assignment doesn't know about the id field, right?
+        # my best guess is that new_post gets updated when we write db.session.commit()
         new_post_id = new_post.id
-
-
         return redirect('/blog?id=' + str(new_post_id))
     
     return render_template('newpost.html')
-
-
-
-
 
 if __name__ == '__main__':
     app.run()
