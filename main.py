@@ -2,6 +2,7 @@
 
 from flask import Flask, request, redirect, render_template, session, flash
 from flask_sqlalchemy import SQLAlchemy
+import re
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -56,7 +57,19 @@ def register():
         verify = request.form['verify']
 
         # TODO validate user data
-        # TODO consider how to use separate 'user-sigup' module here
+
+        valid_email = re.compile('[^@]+@[^@]+\.[^@]+')
+        if not valid_email.search(email):
+            flash('Please enter a valid email address')
+            return render_template('register.html', email=email)
+        if not password or password.isspace() or not(5 < len(password) < 21):
+            flash('Please submit a valid password (3-20 characters)')
+            return render_template('register.html', email=email)
+        if not (password == verify):
+            flash('passwords need to match')
+            return render_template('register.html', email=email)
+
+
 
         existing_user = User.query.filter_by(email=email).first()
         if not existing_user:
